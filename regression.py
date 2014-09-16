@@ -102,9 +102,12 @@ timeit("Training")
 #timeit("Validation")
 
 score = 0.
+wrong = []
 for i, item in enumerate(X_test):
 	if unconvert(clf.predict(item)[0]) == unconvert(Y_test[i]):
 		score += 1
+	else:
+		wrong.append((unconvert(clf.predict(item)[0]),unconvert(Y_test[i])))
 score /= len(X_test)
 print "Manual validation score: " + str(score)
 
