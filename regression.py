@@ -27,8 +27,7 @@ def convert(string):
 		else:
 			raise ValueError("Illegal character: " + string[i])
 
-		num /= 29.
-		#num *= 500
+		#num /= 29.
 
 		final.append(num)
 	while len(final) < 20:
@@ -36,35 +35,48 @@ def convert(string):
 	#final.append(len(string))
 	return final
 
-def unconvert(num):
-	num = int(num)
-	if 1 <= num <= 26:
-		num += 96
-	elif num == 27:
-		num = 32
-	elif num == 28:
-		num = 39
-	elif num == 29:
-		num = 45
-	elif num != 0:
-		raise ValueError("Number out of bounds: " + str(num))
+def unconvert(list):
+	if len(list) > 20:
+		raise ValueError("List too long (" + str(len(list)) + "): " + str(list))
 
-	return chr(num)
+	final = ""
+	for num in list:
+		#num *= 29.
+
+		num = int(num)
+		if 1 <= num <= 26:
+			num += 96
+		elif num == 27:
+			num = 32
+		elif num == 28:
+			num = 39
+		elif num == 29:
+			num = 45
+		elif num == 0:
+			pass
+		else:
+			raise ValueError("Number out of bounds: " + str(num) + "\nIn list: " + str(list))
+
+		if num != 0:
+			final += chr(num)
+	return final
 
 import csv
 X = []
-Ys = []
-for i in convert(""):
-	Ys.append([])
-
+Y = []
 with open('misspellings.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		X.append(convert(row[0]))
-		for i, Y in enumerate(Ys):
-			Y.append(convert(row[1])[i])
+		Y.append(convert(row[1]))
 
-timeit("Preparing the data")
+from sklearn import cross_validation
+X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(X, Y, test_size=0.2, random_state=0)
+
+print "Training:   " + str(len(X_train)) + " x " + str(len(X_train[0]))
+print "Validation: " + str(len(X_test)) + " x " + str(len(X_test[0]))
+
+#timeit("Preparing the data")
 
 '''
 from sklearn.preprocessing import StandardScaler
@@ -75,27 +87,37 @@ X = scaler.transform(X)
 timeit("Standardizing the data")
 '''
 
-from sklearn import linear_model
-#from sklearn import svm
-clfs = []
-for Y in Ys:
-	clf = linear_model.SGDRegressor()
-	#clf = svm.SVR(kernel='linear')
+from sklearn.ensemble import ExtraTreesRegressor
+#from sklearn.neighbors import KNeighborsRegressor
 
-	clf.fit(X, Y)
+clf = ExtraTreesRegressor(n_estimators=2)
+#clf = KNeighborsRegressor()
 
-	clfs.append(clf)
+clf.fit(X_train, Y_train)
 
 timeit("Training")
 
-testwords = ["intillegent", "assurre", "onderstood", "spott", "lissten"]
+#print "Validation score: " + str(clf.score(X_test, Y_test))
+
+#timeit("Validation")
+
+score = 0.
+for i, item in enumerate(X_test):
+	if unconvert(clf.predict(item)[0]) == unconvert(Y_test[i]):
+		score += 1
+score /= len(X_test)
+print "Manual validation score: " + str(score)
+
+timeit("Manual validation")
+
+import random
+for word in random.sample(X, 10):
+	print unconvert(word) + " (" + unconvert(Y[X.index(word)]) + ") -> " + unconvert(clf.predict(word)[0])
+	#print unconvert(word) + " -> " + str(clf.predict(word))
 
 def test (word):
-	gen = ""
-	converted = convert(word)
-	for i, clf in enumerate(clfs):
-		gen += str(clf.predict(converted)) + "\n"
-	print word + " -> " + gen
+	print word + " -> " + str(unconvert(clf.predict(convert(word))[0]))
 
-for word in testwords:
-	test(word)
+#testwords = ["intillegent", "assurre", "onderstood", "spott", "lissten"]
+#for word in testwords:
+#	test(word)
