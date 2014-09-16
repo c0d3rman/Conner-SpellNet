@@ -1,5 +1,10 @@
 import time
-now = time.time()
+then = time.time()
+def timeit (message):
+	global now, then
+	now = time.time()
+	print str(message) + " took " + str(now - then) + "s\n"
+	then = now
 
 import sys
 sys.setcheckinterval(1000)
@@ -50,74 +55,64 @@ def unconvert(list):
 		else:
 			raise ValueError("Number out of bounds: " + str(num) + "\nIn list: " + str(list))
 
-		num *= 29.
+		#num *= 29.
 		if num != 0:
 			final += chr(num)
 	return final
 
 import csv
 X = []
-Y = []
-words = []
-used = {} #for optimization
-import numpy
+Ys = []
+for i in convert(""):
+	Ys.append([])
+#import numpy
 with open('misspellings.csv', 'rbU') as f:
 	reader = csv.reader(f)
-	i = -1
 	for row in reader:
-		X.append(numpy.array(convert(row[0])))
-		if used.has_key(row[1]):
-			Y.append(words.index(row[1]))
-		else:
-			i += 1
-			Y.append(i)
-			words.insert(i, row[1])
-			used[row[1]] = True
+		#X.append(numpy.array(convert(row[0])))
+		#Y.append(numpy.array(convert(row[1])))
+		X.append(convert(row[0]))
+		for i, Y in enumerate(Ys):
+			Y.append(convert(row[1])[i])
 
-X = numpy.array(X)
-Y = numpy.array(Y)
+#X = numpy.array(X)
+#Y = numpy.array(Y)
+
+timeit("Preparing the data")
 
 from sklearn import cross_validation
 X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(X, Y, test_size=0.2, random_state=0)
 
+#from sklearn.preprocessing import StandardScaler
+#scaler = StandardScaler()
+#scaler.fit(X_train)  # Don't cheat - fit only on training data
+#X_train = scaler.transform(X_train)
+#X_test = scaler.transform(X_test)  # apply same transformation to test data
+
+#timeit("Standardizing the data")
+
+
 print "Training:   " + str(len(X_train)) + " x " + str(len(X_train[0]))
 print "Validation: " + str(len(X_test)) + " x " + str(len(X_test[0]))
 
-now2 = time.time()
-print "Preparing the data took " + str(now2 - now) + "s\n"
-
-#from sklearn.naive_bayes import MultinomialNB
-#from sklearn.linear_model import SGDClassifier
-from sklearn.neighbors import KNeighborsClassifier
-#clf = MultinomialNB()
-#clf = SGDClassifier(loss="hinge", penalty="l2")
-clf = KNeighborsClassifier(n_neighbors=1,p=1,leaf_size=1,metric='hamming')
+for 
+from sklearn import linear_model
+#from sklearn import svm
+clf = linear_model.SGDRegressor()
+#clf = svm.SVR(kernel='linear')
 
 clf.fit(X_train, Y_train)
 
-now3 = time.time()
-print "Training took " + str(now3 - now2) + "s\n"
+timeit("Training")
 
 print "Validation score: " + str(clf.score(X_test, Y_test))
 
-now4 = time.time()
-print "Validation took " + str(now4 - now3) + "s\n"
-
-'''
-score = 0.
-for i, item in enumerate(X_test):
-	if words[clf.predict(item)] == words[Y_test[i]]:
-		score += 1
-score /= len(X_test)
-print "Manual validation score: " + str(score)
-'''
+timeit("Validation")
 
 testwords = ["intillegent", "assurre", "onderstood", "spott", "lissten"]
 
 def test (word):
-	print word + " -> " + words[clf.predict(convert(word))]
+	print word + " -> " + unconvert(clf.predict(convert(word)))
 
 for word in testwords:
 	test(word)
-
-#print clf.predict_proba(X)
