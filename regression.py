@@ -76,7 +76,7 @@ X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(X, Y, test_
 print "Training:   " + str(len(X_train)) + " x " + str(len(X_train[0]))
 print "Validation: " + str(len(X_test)) + " x " + str(len(X_test[0]))
 
-#timeit("Preparing the data")
+timeit("Preparing the data")
 
 '''
 from sklearn.preprocessing import StandardScaler
@@ -90,33 +90,36 @@ timeit("Standardizing the data")
 from sklearn.ensemble import ExtraTreesRegressor
 #from sklearn.neighbors import KNeighborsRegressor
 
-clf = ExtraTreesRegressor(n_estimators=2)
+clf = ExtraTreesRegressor(n_estimators=1000,ra)
 #clf = KNeighborsRegressor()
 
 clf.fit(X_train, Y_train)
 
 timeit("Training")
 
-#print "Validation score: " + str(clf.score(X_test, Y_test))
+print "Validation score: " + str(clf.score(X_test, Y_test))
 
-#timeit("Validation")
+timeit("Validation")
 
-score = 0.
-wrong = []
-for i, item in enumerate(X_test):
-	if unconvert(clf.predict(item)[0]) == unconvert(Y_test[i]):
-		score += 1
-	else:
-		wrong.append((unconvert(clf.predict(item)[0]),unconvert(Y_test[i])))
-score /= len(X_test)
-print "Manual validation score: " + str(score)
+#score = 0.
+#wrong = []
+#for i, item in enumerate(X_test):
+#	if unconvert(clf.predict(item)[0]) == unconvert(Y_test[i]):
+#		score += 1
+#	else:
+#		wrong.append((unconvert(clf.predict(item)[0]),unconvert(Y_test[i])))
+#score /= len(X_test)
+#print "Manual validation score: " + str(score)
 
-timeit("Manual validation")
+#timeit("Manual validation")
 
 import random
-for word in random.sample(X, 10):
-	print unconvert(word) + " (" + unconvert(Y[X.index(word)]) + ") -> " + unconvert(clf.predict(word)[0])
-	#print unconvert(word) + " -> " + str(clf.predict(word))
+for word in random.sample(X_train, 5):
+	print unconvert(word) + " (" + unconvert(Y_train[X_train.index(word)]) + ") -> " + unconvert(clf.predict(word)[0])
+print "------"
+for word in random.sample(X_test, 5):
+	print unconvert(word) + " (" + unconvert(Y_test[X_test.index(word)]) + ") -> " + unconvert(clf.predict(word)[0])
+
 
 def test (word):
 	print word + " -> " + str(unconvert(clf.predict(convert(word))[0]))
