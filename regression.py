@@ -90,7 +90,7 @@ timeit("Standardizing the data")
 from sklearn.ensemble import ExtraTreesRegressor
 #from sklearn.neighbors import KNeighborsRegressor
 
-clf = ExtraTreesRegressor(n_estimators=1000,ra)
+clf = ExtraTreesRegressor(n_estimators=10)
 #clf = KNeighborsRegressor()
 
 clf.fit(X_train, Y_train)
