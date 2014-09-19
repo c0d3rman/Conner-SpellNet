@@ -61,7 +61,7 @@ Y = []
 words = []
 used = {} #for optimization
 import numpy
-with open('misspellings.csv', 'rbU') as f:
+with open('data/misspellings.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	i = -1
 	for row in reader:

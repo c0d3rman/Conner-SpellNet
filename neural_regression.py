@@ -108,7 +108,7 @@ timeit("Tests")
 ds = SupervisedDataSet(20, 20)
 def load():
 	print "Loading dataset..."
-	with open('misspellings.csv', 'rbU') as f:
+	with open('data/misspellings.csv', 'rbU') as f:
 		reader = csv.reader(f)
 		for row in reader:
 			ds.addSample(convert(row[0]),convert(row[1]))

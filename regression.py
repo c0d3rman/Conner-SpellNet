@@ -64,7 +64,7 @@ def unconvert(list):
 import csv
 X = []
 Y = []
-with open('misspellings.csv', 'rbU') as f:
+with open('data/misspellings.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	for row in reader:
 		X.append(convert(row[0]))
