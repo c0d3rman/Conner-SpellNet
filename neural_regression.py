@@ -50,7 +50,7 @@ def unconvert(list):
 			num = 39
 		elif num == 55:
 			num = 45
-		elif num == 0:
+		elif num <= 0:
 			pass
 		else:
 			raise ValueError("Number out of bounds: " + str(num) + "\nIn list: " + str(list))
@@ -108,18 +108,17 @@ timeit("Tests")
 ds = SupervisedDataSet(20, 20)
 def load():
 	print "Loading dataset..."
-	for i in xrange(10):
-		with open('misspellings.csv', 'rbU') as f:
-			reader = csv.reader(f)
-			for row in reader:
-				ds.addSample(convert(row[0]),convert(row[1]))
+	with open('misspellings.csv', 'rbU') as f:
+		reader = csv.reader(f)
+		for row in reader:
+			ds.addSample(convert(row[0]),convert(row[1]))
 
-	print len(ds) / 10, "items in dataset."
+	print len(ds), "items in dataset."
 	print "Load of dataset finished."
 load()
 timeit("Loading the data")
 
-net = buildNetwork(20, 20, 20)
+net = buildNetwork(20, 100, 20)
 trainer = BackpropTrainer(net, ds)
 trainer.train()
 timeit("Training")
