@@ -50,8 +50,8 @@ def unconvert(list):
 			num = 39
 		elif num == 55:
 			num = 45
-		elif num <= 0:
-			pass
+		elif num <= 0 or num > 55:
+			num = 0
 		else:
 			raise ValueError("Number out of bounds: " + str(num) + "\nIn list: " + str(list))
 
@@ -108,7 +108,7 @@ timeit("Tests")
 ds = SupervisedDataSet(20, 20)
 def load():
 	print "Loading dataset..."
-	with open('data/misspellings.csv', 'rbU') as f:
+	with open('data/bigdata.csv', 'rbU') as f:
 		reader = csv.reader(f)
 		for row in reader:
 			ds.addSample(convert(row[0]),convert(row[1]))
@@ -125,5 +125,10 @@ timeit("Training")
 
 print unconvert(net.activate(convert("basicly")))
 
+def mutate(word):
+	mutated = random.randint(0, len(word) - 1)
+	mutation = random.choice(letters)
+	return word[:mutated] + mutation + word[mutated + 1:]
+
 def test(word):
-	print unconvert(net.activate(convert(word)))
+	print word + " -> " + unconvert(net.activate(convert(word)))
