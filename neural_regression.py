@@ -2,6 +2,7 @@ import csv
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.utilities import percentError
 
 def convert(string):
 	final = []
@@ -108,7 +109,7 @@ timeit("Tests")
 ds = SupervisedDataSet(20, 20)
 def load():
 	print "Loading dataset..."
-	with open('data/bigdata.csv', 'rbU') as f:
+	with open('data/misspellings.csv', 'rbU') as f:
 		reader = csv.reader(f)
 		for row in reader:
 			ds.addSample(convert(row[0]),convert(row[1]))
@@ -118,12 +119,30 @@ def load():
 load()
 timeit("Loading the data")
 
+testds, trainds = ds.splitWithProportion(0.2)
+
+#trainds._convertToOneOfMany()
+#testds._convertToOneOfMany()
+
 net = buildNetwork(20, 100, 20)
-trainer = BackpropTrainer(net, ds)
-trainer.train()
+trainer = BackpropTrainer(net, trainds)
+#trainer.train()
+trainer.trainEpochs(10)
 timeit("Training")
 
-print unconvert(net.activate(convert("basicly")))
+'''
+trnresult = percentError( trainer.testOnClassData(),
+                              trainds['target'] )
+
+tstresult = percentError( trainer.testOnClassData(
+           dataset=testds ), testds['target'] )
+
+print "epoch: %4d" % trainer.totalepochs, \
+          "  train error: %5.2f%%" % trnresult, \
+          "  test error: %5.2f%%" % tstresult
+
+timeit("Validation")
+'''
 
 import random
 letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
@@ -134,3 +153,5 @@ def mutate(word):
 
 def test(word):
 	print word + " -> " + unconvert(net.activate(convert(word)))
+
+test("basicly")

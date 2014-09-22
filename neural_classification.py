@@ -2,6 +2,7 @@ import csv
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.datasets import SupervisedDataSet
 from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.utilities import percentError
 
 def convert(string):
 	final = []
@@ -50,8 +51,8 @@ def unconvert(list):
 			num = 39
 		elif num == 55:
 			num = 45
-		elif num <= 0:
-			pass
+		elif num <= 0 or num > 55:
+			num = 0
 		else:
 			raise ValueError("Number out of bounds: " + str(num) + "\nIn list: " + str(list))
 
@@ -105,25 +106,43 @@ tests()
 timeit("Tests")
 
 
-ds = SupervisedDataSet(20, 20)
+ds = SupervisedDataSet(20, 1)
+words = []
+used = {} #for optimization
 def load():
 	print "Loading dataset..."
 	with open('data/misspellings.csv', 'rbU') as f:
 		reader = csv.reader(f)
+		i = -1
 		for row in reader:
-			ds.addSample(convert(row[0]),convert(row[1]))
+			if used.has_key(row[1]):
+				ds.addSample(convert(row[0]), words.index(row[1]))
+			else:
+				i += 1
+				ds.addSample(convert(row[0]), i)
+				words.insert(i, row[1])
+				used[row[1]] = True
 
 	print len(ds), "items in dataset."
 	print "Load of dataset finished."
 load()
 timeit("Loading the data")
 
-net = buildNetwork(20, 20000000, 20)
+
+net = buildNetwork(20, 10, 1)
 trainer = BackpropTrainer(net, ds)
 trainer.train()
+#trainer.trainEpochs(5)
 timeit("Training")
 
-print unconvert(net.activate(convert("basicly")))
+import random
+letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+def mutate(word):
+	mutated = random.randint(0, len(word) - 1)
+	mutation = random.choice(letters)
+	return word[:mutated] + mutation + word[mutated + 1:]
 
 def test(word):
-	print unconvert(net.activate(convert(word)))
+	print word + " -> " + words[int(net.activate(convert(word))[0])]
+
+test("basicly")
