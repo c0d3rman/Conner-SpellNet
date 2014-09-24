@@ -99,7 +99,14 @@ def tests():
 	print convert("Conner")
 tests()
 
-netNum = 0
+def score(network, dataset):
+	score = 0.
+	for x, y in dataset:
+		predict = unconvert(network.activate(x))
+		score += damerau_levenshtein_distance(predict,unconvert(y))
+	score /= float(len(dataset))
+	return score
+
 def makeNet(learning_rate):
 	ds = SupervisedDataSet(20, 20)
 	with open('data/misspellingssmall.csv', 'rbU') as f:
@@ -107,30 +114,28 @@ def makeNet(learning_rate):
 		for row in reader:
 			ds.addSample(convert(row[0]),convert(row[1]))
 
-	#testds, trainds = ds.splitWithProportion(0.2)
+	testds, trainds = ds.splitWithProportion(0.2)
 
 	net = buildNetwork(20, 20, 20)
-	#trainer = BackpropTrainer(net, dataset=trainds, learningrate=learning_rate)
-	trainer = BackpropTrainer(net, dataset=ds, learningrate=learning_rate)
-	#trainer.train()
-	#trainer.trainEpochs(5)
-	trainer.trainUntilConvergence()
+	trainer = BackpropTrainer(net, dataset=trainds, learningrate=learning_rate)
+	
+	myscore = float("inf")
+	i = 0
+	while myscore > 5:
+		i += 1
 
-	score = 0
-	for x, y in testds:
-		predict = unconvert(net.activate(x))
-		score += damerau_levenshtein_distance(predict,unconvert(y))
+		trainer.train()
+		#trainer.trainEpochs(5)
+		#trainer.trainUntilConvergence(verbose=True)
+
+		myscore = score(net, testds)
+		print "Epoch #" + str(i) + ": " + str(myscore) + " (" + unconvert(net.activate(convert("ecceptable"))) + ")"
 
 	global lastNet
 	lastNet = net
 
-	global netNum
-	netNum += 1
-
-	print "Network " + str(netNum) + " done with score " + str(score)
+	print "Network done with score " + str(myscore)
 	
 	return score
 
-x0 = [0.01]
-optimizer = CMAES(makeNet, x0, minimize=True, maxLearningSteps=10)
-print optimizer.learn()
+makeNet(1)
