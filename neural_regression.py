@@ -124,7 +124,7 @@ testds, trainds = ds.splitWithProportion(0.2)
 #trainds._convertToOneOfMany()
 #testds._convertToOneOfMany()
 
-net = buildNetwork(20, 100, 20)
+net = buildNetwork(20, 20, 20, 20, 20)
 trainer = BackpropTrainer(net, trainds)
 #trainer.train()
 trainer.trainEpochs(10)
