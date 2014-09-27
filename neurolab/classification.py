@@ -23,7 +23,7 @@ def convert(string):
 		else:
 			raise ValueError("Illegal character: " + string[i] + " (" + str(ord(string[i])) + ")")
  
-		#num /= 55.
+		num /= 55.
  
 		final.append(num)
 	while len(final) < 20:
@@ -37,7 +37,7 @@ def unconvert(list):
  
 	final = ""
 	for num in list:
-		#num *= 55.
+		num *= 55.
  
 		num = int(round(num))
 		if 1 <= num <= 26:
@@ -105,7 +105,7 @@ tests()
 timeit("Tests")
 
 examples = 0
-with open('../data/misspellingssmall.csv', 'rbU') as f:
+with open('../data/misspellings.csv', 'rbU') as f:
 	examples = len(f.readlines())
 
 from math import log, ceil
@@ -121,7 +121,7 @@ input = []
 target = []
 words = []
 used = {} #for optimization
-with open('../data/misspellingssmall.csv', 'rbU') as f:
+with open('../data/misspellings.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	i = -1
 	for row in reader:
