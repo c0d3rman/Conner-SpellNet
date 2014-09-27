@@ -104,27 +104,36 @@ def tests():
 tests()
 timeit("Tests")
 
-targetCounter = 0
+examples = 0
+with open('../data/misspellingssmall.csv', 'rbU') as f:
+	examples = len(f.readlines())
+
+def makeTarget(index, length):
+	array = [0] * length
+	array[index] = 1
+	return array
+
 input = []
 target = []
 words = []
 used = {} #for optimization
+#examples = 0
 with open('../data/misspellingssmall.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	i = -1
 	for row in reader:
 		if used.has_key(row[1]):
 			input.append(convert(row[0]))
-			target.append([words.index(row[1])])
+			target.append(makeTarget(words.index(row[1]), examples))
 		else:
 			i += 1
 			input.append(convert(row[0]))
-			target.append([i])
+			target.append(makeTarget(i, examples))
 			words.insert(i, row[1])
 			used[row[1]] = True
 input = np.array(input)
 target = np.array(target)
-target /= len(target)
+#target /= len(target)
 
 timeit("Loading the data")
  
@@ -134,7 +143,7 @@ for i in xrange(len(convert(""))):
 	shape.append([0, 55])
 
 
-net = nl.net.newff(shape, [20, 20, 20, 20, 20, 1])
+net = nl.net.newff(shape, [20, 20, 20, examples])
 #net = nl.net.newff(shape, [20, 20, 20, 1])
 #net.trainf =
 # Train process
@@ -144,7 +153,7 @@ timeit("Training")
  
 # Test
 def test(word):
-	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0] * len(target)))]
-#	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0]))]
+#	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0] * examples))]
+	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0]))]
  
 test("acuracy")
