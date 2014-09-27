@@ -108,27 +108,30 @@ examples = 0
 with open('../data/misspellingssmall.csv', 'rbU') as f:
 	examples = len(f.readlines())
 
-def makeTarget(index, length):
-	array = [0] * length
-	array[index] = 1
-	return array
+from math import log, ceil
+binlength = int(ceil(log(examples, 2)))
+
+def makeTarget(index):
+	return [int(x) for x in bin(index)[2:].zfill(binlength)]
+
+def breakTarget(list):
+	return int(''.join([str(int(round(x))) if x > 0 else '0' for x in list]), 2)
 
 input = []
 target = []
 words = []
 used = {} #for optimization
-#examples = 0
 with open('../data/misspellingssmall.csv', 'rbU') as f:
 	reader = csv.reader(f)
 	i = -1
 	for row in reader:
 		if used.has_key(row[1]):
 			input.append(convert(row[0]))
-			target.append(makeTarget(words.index(row[1]), examples))
+			target.append(makeTarget(words.index(row[1])))
 		else:
 			i += 1
 			input.append(convert(row[0]))
-			target.append(makeTarget(i, examples))
+			target.append(makeTarget(i))
 			words.insert(i, row[1])
 			used[row[1]] = True
 input = np.array(input)
@@ -143,7 +146,7 @@ for i in xrange(len(convert(""))):
 	shape.append([0, 55])
 
 
-net = nl.net.newff(shape, [20, 20, 20, examples])
+net = nl.net.newff(shape, [20, 20, 20, 20, binlength])
 #net = nl.net.newff(shape, [20, 20, 20, 1])
 #net.trainf =
 # Train process
@@ -154,6 +157,7 @@ timeit("Training")
 # Test
 def test(word):
 #	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0] * examples))]
-	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0]))]
+#	print word + " -> " + words[int(round(net.sim([convert(word)])[0][0]))]
+	print word + " -> " + words[breakTarget(net.sim([convert(word)])[0])]
  
 test("acuracy")
