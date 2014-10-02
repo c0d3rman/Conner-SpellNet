@@ -139,18 +139,24 @@ target = np.array(target)
 #target /= len(target)
 
 timeit("Loading the data")
- 
- 
-shape = []
-for i in xrange(len(convert(""))):
-	shape.append([0, 55])
 
 
-net = nl.net.newff(shape, [20, 20, 20, 20, binlength])
+inputLayerSize = 20
+inputLayerBounds = [0, 55]
+outputLayerSize = binlength
+hiddenLayerSize = int(float(inputLayerSize) * (2./3.)) + outputLayerSize
+net = nl.net.newff([inputLayerBounds] * inputLayerSize, [hiddenLayerSize, hiddenLayerSize, outputLayerSize])
 #net = nl.net.newff(shape, [20, 20, 20, 1])
 #net.trainf =
 # Train process
-error = net.train(input, target, epochs=50, show=1)
+#error = net.train(input, target, epochs=50, show=1)
+for i in xrange(500):
+	rng_state = np.random.get_state()
+	np.random.shuffle(target)
+	np.random.set_state(rng_state)
+	np.random.shuffle(input)
+	error = net.train(input[:2000], target[:2000], epochs=1, show=None)
+	print "Epoch: " + str(i + 1) + "; Error: " + str(error[0]) + ";"
 
 timeit("Training")
  
